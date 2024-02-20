@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+</head>
+<body>
+
+<h3>파일 업로드</h3>
+
+<p id="demo"></p>
+
+<form id="uploadfileForm">
+	id:<input type="text" name="id"><br/>
+	제목:<input type="text" name="title"><br/>
+	내용:<textarea rows="10" cols="30" name="content"></textarea><br/><br/>
+	
+	자료:<input type="file" name="uploadfile"><br/><br/>
+	
+	<button type="button" id="uploadBtn">파일올리기</button>	
+</form>
+
+<script type="text/javascript">
+$("#uploadBtn").click(function () {
+	
+	$.ajax({
+		url:"http://localhost:9900/fileupload",
+		type:"post",
+		data:new FormData( $("#uploadfileForm")[0] ),
+		enctype:"multipart/form-data",
+		processData:false,
+		contentType:false,
+		cache:false,
+		
+		success:function(str){
+			alert('success');
+			$("#demo").text(str);
+		},
+		error:function(){
+			alert('error');
+		}
+	});
+	
+});
+</script>
+
+<br/><br/>
+
+<h3>파일 다운로드</h3>
+
+<button type="button" id="downloadbtn">파일다운로드</button>
+
+<script type="text/javascript">
+$("#downloadbtn").click(function(){
+	
+	location.href = "http://localhost:9900/filedownload?filename=" + "gittoken.txt";
+	
+/* 	$.ajax({
+		url:"http://localhost:9900/filedownload",
+		type:"get",
+		data:{"filename":"gittoken.txt"},
+		success:function(){
+			alert("파일다운로드 성공!!");
+		},
+		error:function(){
+			alert("error");
+		}
+	}); */
+});
+</script>
+
+
+
+
+</body>
+</html>
