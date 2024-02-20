@@ -4,104 +4,91 @@
 <meta charset="UTF-8">
 <title>Insert title here</title>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-   <style type="text/css">
-        body {
-            font-family: Arial, sans-serif;
-            background-color: white;
-            text-align: center;
-            margin: 0;
-            padding: 0;
-        }
+<style type="text/css">
+*{
+    padding: 0;
+    margin: 0;
+    border: none;
+}
+body{
+    font-size: 14px;
+    font-family: 'Roboto', sans-serif;
+}
+.login-wrapper{
+	margin: auto;
+    width: 400px;
+    height: 350px;
+    padding: 40px;
+    box-sizing: border-box;
+    
+}
+.login-wrapper > h2{
+    font-size: 24px;
+    color: #9a161f;
+    margin-bottom: 20px;
+}
+#login-form > input{
+    width: 100%;
+    height: 48px;
+    padding: 0 10px;
+    box-sizing: border-box;
+    margin-bottom: 16px;
+    border-radius: 6px;
+    background-color: #F8F8F8;
+}
+#login-form > input::placeholder{
+    color: #D2D2D2;
+}
+#login-form > input[type="button"]{
+    color: #fff;
+    font-size: 16px;
+    background-color: #9a161f;
+    margin-top: 20px;
+}
 
-        h1 {
-            color: #333;
-        }
-
-        .center {
-            margin: auto;
-            width: 300px;
-            background-color: #f4f4f4;
-            border: 1px solid #ccc;
-            padding: 20px;
-            border-radius: 20px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            margin-top: 50px;
-        }
-        
-        label {
-            display: block;
-            text-align: left;
-            margin-bottom: 5px;
-            color: #333;
-        }
-
-        input {
-            width: 100%;
-            padding: 8px;
-            margin-bottom: 10px;
-            box-sizing: border-box;
-            border: 1px solid #ccc;
-       		border-radius: 10px;
-        }
-        
-        input:focus {
-        	border-color: #9a161f; 
-    	}
-
-        button {
-            background-color: #9a161f;
-            color: #fff;
-            padding: 10px 15px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-
-        button:hover {
-            background-color: lightgray;
-        }
-
-        #confirmMsg, #idcheck {
-            font-size: 15px;
-        }
-    </style>
+#login-form > input[type="button"]:hover{
+    background-color: lightgray;
+    transform: scale(0.95);
+}
+#login-form > input[type="checkbox"]{
+    display: none;
+}
+#login-form > label{
+    color: #999999;
+}
+</style>
 </head>
 <body>
 
-<h1>회원가입</h1>
-
-<div class="center">
-    <label for="id">아이디 :</label>
-    <input type="text" id="id"><br/>
+<div class="login-wrapper">
+<h2>회원가입</h2>
+	<form id="login-form">
+    <input type="text" id="id" placeholder="아이디">
     <p id="idcheck"></p>
-    <button type="button" id="id_chk_btn">ID확인</button><br/>
-    <label for="pw">비밀번호 : </label>
-    <input type="password" id="pw"><br/>
-    <label for="pw2">비밀번호 확인 : </label>
-    <input type="password" id="pw2" onkeyup="passConfirm()"><br/>
+    <input type="button" id="id_chk_btn" value="ID확인">
+    <input type="password" id="pw" placeholder="비밀번호">
+    <input type="password" id="pw2" onkeyup="passConfirm()" placeholder="비밀번호 확인">
     <p id="confirmMsg"></p>
-    <label for="name">이름 : </label>
-    <input type="text" id="name"><br/>
-    <label for="email">이메일 : </label>
-    <input type="text" id="email"><br/>
-    <button type="button" id="regi_btn">회원가입</button>
+    <input type="text" id="name" placeholder="이름">
+    <input type="text" id="email" placeholder="이메일">
+    <input type="button" id="regi_btn" value="회원가입"/>
+    </form>
 </div>
 <script type="text/javascript">
-$("#id_chk_btn").click(function(){
+
+$("#id_chk_btn").click(function(){	
 	$.ajax({
 		url:"http://localhost:9900/idcheck",
 		type:"get",
 		data:{id:$("#id").val()},
 		success:function(msg){
-			/* alert('success'); */
 			if(msg === false){
 				$("#idcheck").css("color", "#0000ff");
 				$("#idcheck").text("사용할 수 있는 아이디입니다");
 			}else{
 				$("#idcheck").css("color", "#ff0000");
 				$("#idcheck").text("사용중인 아이디입니다");
-				$("#user_id").val("");
+				$("#id").val("");
 			}
 		},
 		error:function(){
@@ -146,10 +133,17 @@ $("#regi_btn").click(function(){
         alert("이메일을 넣어주세요");
         return false; // 페이지 넘기지 않음
     }
+	
+	let member = {
+		id:$("#id").val(), 
+		pw:$("#pw").val(), 
+		name:$("#name").val(), 
+		email:$("#email").val()	
+	};
 	$.ajax({
 		url:"http://localhost:9900/regi",
 		type:"post",
-		data:{id:$("#id").val(), pw:$("#pw").val(), name:$("#name").val(), email:$("#email").val()},
+		data:member,
 		success:function(msg) {
 			alert(msg);
 			if(msg==="회원가입이 완료되었습니다!"){
