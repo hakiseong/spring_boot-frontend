@@ -54,20 +54,17 @@ body{
 #login-form > input[type="checkbox"]{
     display: none;
 }
-#login-form > label{
-    color: #999999;
-}
-#login-form input[type="checkbox"] + label{
-    cursor: pointer;
-    padding-left: 26px;
-    background-image: url("checkbox.png");
+input[type=checkbox] + label { 
+    cursor: pointer; 
+    padding-left: 23px; 
     background-repeat: no-repeat;
-    background-size: contain;
+    background-image: url('images/checker-off.svg');
 }
-#login-form input[type="checkbox"]:checked + label{
-    background-image: url("checkbox-active.png");
-    background-repeat: no-repeat;
-    background-size: contain;
+input[type=checkbox]:checked + label {
+    background-image: url('images/checker-on.svg');
+}
+input[type=checkbox]:disabled + label {
+    background-image: url('images/checker-disabled.svg');
 }
 </style>
 </head>
@@ -78,8 +75,9 @@ body{
    <form id="login-form">
     <input type="text" id="id" placeholder="아이디">
     <input type="password" id="pw" placeholder="비밀번호">
+    <input type="checkbox" id="chk_save_id">
     <label for="chk_save_id">
-    	<input type="checkbox" id="chk_save_id">아이디 저장하기
+    아이디 저장하기
     </label>
     <input type="button" id="btn" value="로그인">
     <input type="button" id="Rbtn" value="회원가입">
@@ -122,7 +120,9 @@ $("#chk_save_id").click(function () {
                 if(str === "로그인에 성공하였습니다!") {
                 	location.href="bbslist.html";
                 }else {
-                	location.href="login.html";
+                	$("#id").val("");
+                	$("#pw").val("");
+                	$("#id").focus();
                 }           
             },
             error: function () {
