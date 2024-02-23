@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">  
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
+<script type="text/javascript" src="./js/jquery.twbsPagination.min.js"></script>
+
+<style type="text/css">
+th.colorfy {
+    background: #DCE2F0;
+    color: white;
+}
+
+h2{
+	margin: 20px;
+	text-align: center;
+}
+
+</style>
+</head>
+<body>
+
+<div id="app" class="container">
+<h2>상세보기</h2>
+<table class="table table-sm">
+<col width="150"><col width="500">
+<tr>
+	<th class="th colorfy">아이디</th>
+	<td id="id"></td>
+</tr>
+<tr>
+	<th class="th colorfy">다운 횟수</th>
+	<td id="downcount"></td>
+</tr>
+<tr>
+	<th class="th colorfy">조회수</th>
+	<td id="readcount"></td>
+</tr>
+<tr>
+	<th class="th colorfy">등록일</th>
+	<td id="regedate"></td>
+</tr>
+<tr>
+	<th class="th colorfy">제목</th>
+	<td id="title"></td>
+</tr>
+<tr>
+	<th class="th colorfy">다운로드</th>
+	<td id="filename">
+	</td>
+</tr>
+<tr>
+	<td colspan="2">
+		<textarea rows="5" cols="50" class="form-control" id="content" readonly></textarea>
+	</td>
+</tr>
+</table>
+</div>
+
+<script type="text/javascript">
+const url = new URL(location.href);
+const params = url.searchParams;
+let seq = params.get("seq");
+// alert('seq:' + seq);
+
+// login 한 id를 취득(수정, 삭제 버튼을 시각화할지 결정을 위해서)
+let login = sessionStorage.getItem("login");
+let loginId = (JSON.parse(login)).id;
+
+//ajax
+$(document).ready(function () {
+	$.ajax({
+		url:"http://localhost:9900/pdsdetail",
+		type:"get",
+		data:{ "seq":seq },
+		success:function(dto){
+			let str = '<a href="http://localhost:9900/filedownload?filename=' + dto.filename + '&seq=' + dto.seq + '">' + dto.filename + '</a>';
+			$("#id").text( dto.id );
+			$("#downcount").text( dto.downcount );
+			$("#readcount").text( dto.readcount );
+			$("#regedate").text( dto.regedate );
+			$("#title").text( dto.title );
+			$("#filename").append(str);
+			$("#content").text( dto.content );
+		},
+		error:function(){
+			alert("error");
+		}
+	});
+});
+
+$("#downBtn").click(function(){
+	
+});
+</script>
+</body>
+</html>

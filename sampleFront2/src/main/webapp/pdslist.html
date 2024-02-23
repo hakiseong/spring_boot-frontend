@@ -2,8 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>bbslist</title>
-
+<title>Insert title here</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">  
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
@@ -36,14 +35,14 @@ th.colorfy {
 }
 
 input[type="button"] {
-    width: 55px;
+    width: 60px;
     height: 40px;
     padding: 0 10px;
     box-sizing: border-box;
     margin-bottom: 19px;
     border-radius: 6px;
-    border-color:#DCE2F0;
     background-color: #F8F8F8;
+    border-color: #DCE2F0;
 }
 
 input[type="button"]{
@@ -57,7 +56,6 @@ input[type="button"]:hover{
     background-color: lightgray;
     transform: scale(0.95);
 }
-
 .my.pagination > .active > a, 
 .my.pagination > .active > span, 
 .my.pagination > .active > a:hover, 
@@ -65,15 +63,15 @@ input[type="button"]:hover{
 .my.pagination > .active > a:focus, 
 .my.pagination > .active > span:focus {
   background: #DCE2F0;
-  border-color:#DCE2F0;
+  border-color: #DCE2F0;
 }
 </style>
-
 </head>
 <body>
 
+
 <div class="center">
-<h2>게시판</h2>
+<h2>자료실</h2>
 <div class="d-flex justify-content-center align-items-center">
 	<select id="choice" class="form-select" style="width:auto;">
 		<option value="start">검색</option>
@@ -93,16 +91,16 @@ input[type="button"]:hover{
 
 <table class="table table-hover">
 <colgroup>
-	<col width="70"/><col width="600"/><col width="100"/><col width="150"/>
+	<col width="70"/><col width="80"><col width="600"/><col width="100"/><col width="150"/><col width="200">
 </colgroup>
 
 <thead>
 <tr>
-	<th class="th colorfy">번호</th><th class="th colorfy">제목</th><th class="th colorfy">조회수</th><th class="th colorfy">작성자</th>
+	<th class="th colorfy">번호</th><th class="th colorfy">작성자</th><th class="th colorfy">제목</th><th class="th colorfy">조회수</th><th class="th colorfy">다운수</th><th class="th colorfy">작성일</th>
 </tr>	
 </thead>
 
-<tbody id="bbslist">
+<tbody id="pdslist">
 </tbody>
 
 </table>
@@ -113,57 +111,51 @@ input[type="button"]:hover{
     <nav aria-label="Page navigation">
         <ul class="pagination my" id="pagination" style="justify-content:center;"></ul>
     </nav>
+</div><br/>
+
+<a href="pdswrite.html">자료업로드</a>
+<a href="bbslist.html">게시판</a>
 </div>
 
-<br>
 
-<a href="bbswrite.html">글쓰기</a>
-<a href="pdslist.html">자료실</a>
-
-</div>
 
 <script type="text/javascript">
+$("#uploadbtn").click(function(){
+	location.href="pdswrite.html";
+});
 $(document).ready(function () {
-	bbslist(0);
+	pdslist(0);
 });
 
-function bbslist( pn ) {
+function pdslist( pn ) {
 	let choice = $("#choice").val();
 	let search = $("#search").val();
 	
 	$.ajax({
-		url:"http://localhost:9900/bbslist",
+		url:"http://localhost:9900/pdslist",
 		type:"get",
 		data:{ "choice":choice, "search":search, "pageNumber":pn },
 		success:function(json){
-			// alert('success');
-			// alert(JSON.stringify(json));
-			
-			let bbslist = json.bbslist;
-			let pageBbs = json.pageBbs;
+			let pdslist = json.pdslist;
+			let pagePds = json.pagePds;
 			
 			let str = "";
-			for(let i = 0;i < bbslist.length; i++){
+			for(let i = 0;i < pdslist.length; i++){
 				str += "<tr>";	
 				str += "	<td>" + (i + 1) + "</td>";
-				
-				if(bbslist[i].del == 0){
-					str += "	<td style='text-align:left'>" 
-										+ getArrow( bbslist[i].depth ) 
-										+ "<a href='bbsdetail.html?seq=" + bbslist[i].seq + "'>" + titleDot(bbslist[i].title) + "</a>" 
-								+ "</td>";
-				}else{
-					str += "	<td><font color='#ff0000'>이 글은 작성자의 의해서 삭제되었습니다</font></td>";
-				}
-				
-				str += "	<td>" + bbslist[i].readcount + "</td>";
-				str += "	<td>" + bbslist[i].id + "</td>";
+				str += "	<td>" + pdslist[i].id + "</td>";
+				str += "	<td style='text-align:left'>" 
+				str	+= "		<a href='pdsdetail.html?seq=" + pdslist[i].seq + "'>" + titleDot(pdslist[i].title) + "</a>" 
+				str	+= "    </td>";
+				str += "	<td>" + pdslist[i].readcount + "</td>";
+				str += "	<td>" + pdslist[i].downcount + "</td>";
+				str += "	<td>" + pdslist[i].regedate + "</td>";		
 				str += "</tr>";	
 			}			
-			$("#bbslist").html(str);
+			$("#pdslist").html(str);
 			
 			// 페이징
-			loadPaging(pageBbs, pn);
+			loadPaging(pagePds, pn);
 		},
 		error:function(){
 			alert('error');
@@ -172,17 +164,17 @@ function bbslist( pn ) {
 }
 
 $("#searchBtn").click(function(){
-	bbslist(0);
+	pdslist(0);
 });
 
-function loadPaging(pageBbs, pn) {
+function loadPaging(pagePds, pn) {
 	
 	// 초기화
 	$("#pagination").twbsPagination("destroy");
 	
 	$("#pagination").twbsPagination({
 		startPage:pn + 1,
-		totalPages:pageBbs,
+		totalPages:pagePds,
 		visiblePages:10,
 		first:'<span srid-hidden="true">«</span>',		// 처음 페이지로 이동
 		prev:"이전",
@@ -190,26 +182,11 @@ function loadPaging(pageBbs, pn) {
 		last:'<span srid-hidden="true">»</span>',
 		initiateStartPageClick:false,					// 자동 실행이 되지 않도록 설정
 		onPageClick:function(event, page){
-			bbslist(page-1);
+			pdslist(page-1);
 		}
 	});	
 }
-
-
-// 답글 화살표 표시 함수
-function getArrow( depth ) {
-	let rs = "<img src='./images/arrow1.png' width='16px' height='16px'/>&nbsp;";
-	let nbsp = "&nbsp;&nbsp;&nbsp;&nbsp;";
-	
-	let ts = "";
-	for(let i = 0;i < depth; i++){
-		ts += nbsp;
-	}
-	
-	return depth==0?"":ts + rs;
-}
-
-// 제목이 너무 긴 경우 ... 으로 표시
+//제목이 너무 긴 경우 ... 으로 표시
 function titleDot(title) {
 	let newtitle;
 	
@@ -223,6 +200,5 @@ function titleDot(title) {
 	return newtitle;
 }
 </script>
-
 </body>
 </html>

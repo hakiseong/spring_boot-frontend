@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>bbsdetail</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
+<style type="text/css">
+th{
+	background: #DCE2F0;
+	color: white;
+}
+pre{
+	white-space: pre-wrap;
+	word-break:break-all;
+	overflow: auto;
+}
+input[type="button"] {
+    width: 70px;
+    height: 40px;
+    padding: 0 10px;
+    box-sizing: border-box;
+    margin-bottom: 19px;
+    border-radius: 6px;
+    background-color: #F8F8F8;
+    border-color: #DCE2F0;
+}
+
+input[type="button"]{
+    color: #fff;
+    font-size: 16px;
+    background-color: #DCE2F0;
+    margin-top: 20px;
+}
+
+input[type="button"]:hover{
+    background-color: lightgray;
+    transform: scale(0.95);
+}
+
+.btncenter{
+	text-align: center;
+}
+</style>
+
+</head>
+<body>
+
+<div id="app" class="container">
+<br/>
+
+<h2>상세 글보기</h2>
+
+<table class="table table-sm">
+<col width="150px"/><col width="500px"/>
+
+<tr>
+	<th>작성자</th>
+	<td id="id"></td>
+</tr>
+<tr>
+	<th>작성일</th>
+	<td id="wdate"></td>
+</tr>
+<tr>
+	<th>조회수</th>
+	<td id="readcount"></td>
+</tr>
+<tr>	
+	<td colspan="2" id="title" style="font-size: 22px;font-weight: bold;"></td>
+</tr>
+<tr>
+	<td colspan="2" style="font-size: 120%">
+		<pre id="content" style="font-size: 20px;font-family: 고딕, arial;background-color: white"></pre>
+	</td>
+</tr>
+</table>
+
+<div class="btncenter">
+	<input type="button" id="answerBbs" value="답글">
+	
+	<input type="button" id="updateBbs" value="글수정">
+		
+	<input type="button" id="deleteBbs" value="글삭제">
+</div>
+
+<br/><br/><br/>
+
+<table>
+<col width="1500px"/><col width="150px"/>
+<tr>
+	<td style="text-shadow: 0 1px 1px rgba(0, 0, 0, 0.5)"><b>< 댓글 ></b></td>
+</tr> 
+<tr>
+	<td>
+		<textarea rows="3" class="form-control" id="com_content"></textarea>
+	</td>
+	<td style="padding-left: 30px">
+		<button id="btn" type="button" class="btn btn-primary btn-block p-4" style="background-color: #9A161F; border-color: #9A161F">등록</button>
+	</td>
+</tr>
+</table>
+
+<br/><br/>
+<table class="table table-sm">
+<tbody id="tbody"></tbody>
+</table>
+</div>
+<script type="text/javascript">
+const url = new URL(location.href);
+const params = url.searchParams;
+let seq = params.get("seq");
+// alert('seq:' + seq);
+
+// login 한 id를 취득(수정, 삭제 버튼을 시각화할지 결정을 위해서)
+let login = sessionStorage.getItem("login");
+let loginId = (JSON.parse(login)).id;
+
+// ajax
+$(document).ready(function () {
+	comment();
+	$.ajax({
+		url:"http://localhost:9900/bbsdetail",
+		type:"get",
+		data:{ "seq":seq },
+		success:function(dto){
+			$("#id").text( dto.id );
+			$("#wdate").text( dto.wdate );
+			$("#readcount").text( dto.readcount );
+			$("#title").text( dto.title );
+			$("#content").text( dto.content );
+			
+			if(loginId != dto.id){
+				$("#updateBbs").hide();
+				$("#deleteBbs").attr("disabled", "disabled");
+			}
+		},
+		error:function(){
+			alert("error");
+		}
+	});
+$("#btn").click(function(){
+	$.ajax({
+		url:"http://localhost:9900/commentWrite",
+		type:"get",
+		data:{"seq":seq,"id":loginId,"content":$("#com_content").val(),"wdate":"0"},
+		success:function(msg){
+			if(msg === "YES"){
+				alert("댓글이 성공적으로 작상되었습니다!");
+				comment();
+			}else{
+				alert("댓글 작성에 실패하였습니다!");
+			}
+		},
+		error:function(){
+			alert("error");
+		}
+	});
+});		
+$("#answerBbs").click(function(){
+	location.href = "bbsanswer.html?seq=" + seq;
+});
+$("#updateBbs").click(function(){
+	location.href = "bbsupdate.html?seq=" + seq;
+});
+$("#deleteBbs").click(function(){
+	$.ajax({
+		url:"http://localhost:9900/bbsdelete",
+		type:"get",
+		data:{"seq":seq},
+		success:function(msg){
+			if(msg === "YES") {
+				alert("성공적으로 글이 삭제 되었습니다!");
+				location.href = "bbslist.html";
+			}else{
+				alert("글 삭제에 실패하였습니다!");
+				location.href = "bbsdetail.html";
+			}
+		}
+	});
+});
+	
+});
+
+function comment() {
+	$.ajax({
+		url:"http://localhost:9900/commentList",
+		type:"get",
+		data:{"seq":seq},
+		success:function( list ){
+			$("#tbody").empty();
+			$.each(list, function (i, item) {
+				let str = "<tr id='tableReply'>";
+				str += "<td style='color: #ffffff; background-color: #9a161f;'>작성자: " + item.id + "</td>";
+				str += "<td style='color: #ffffff; background-color: #9a161f;'>작성일: " + item.wdate + "</td>";
+				str += "<tr>";
+				str += "<td colspan='2' style='background-color: #f5f5f5;'>" + item.content + "</td>";			
+				str += "</tr>";
+				str += "<tr>";
+				str += "<td colspan='2'>";								
+				str += "</td>";			
+				str += "</tr>";
+				
+				$("#tbody").append(str);
+			});					
+						
+		},
+		error:function(){
+			alert('error');
+		}		
+	});	
+}
+</script>
+
+
+</body>
+</html>
